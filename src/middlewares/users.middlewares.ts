@@ -37,7 +37,7 @@ export class CreateUsersMiddleware {
         },
       });
 
-      if (emailAlreadyExists) {
+      if (emailAlreadyExists > 0) {
         return res.status(400).json({
           ok: false,
           message:
