@@ -67,5 +67,7 @@ export class CreateUsersMiddleware {
           "A senha deve possuir no minímo 8 caracteres, uma letra maiúscula, e um número",
       });
     }
+
+    return next();
   }
 }
