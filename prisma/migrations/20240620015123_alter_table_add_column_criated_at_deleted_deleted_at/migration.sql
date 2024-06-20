@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "users" ADD COLUMN     "criado_em" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "deletado_em" TIMESTAMP,
+ADD COLUMN     "deleted" BOOLEAN NOT NULL DEFAULT false;

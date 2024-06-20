@@ -13,6 +13,9 @@ model User {
   email String @db.VarChar(255) @unique
   username String @db.VarChar(255)
   password String @db.VarChar(255)
+  createdAt DateTime @db.Timestamp() @default(now()) @map("criado_em")
+  deleted Boolean @db.Boolean @default(false)
+  deletedAt DateTime? @db.Timestamp() @map("deletado_em")
 
   @@map("users")
 }
