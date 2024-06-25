@@ -31,6 +31,11 @@ export class AuthController {
 
       const authToken = randomUUID();
 
+      await prismaConnection.user.update({
+        where: { id: userFound.id },
+        data: { authToken }
+    });
+
       await res.status(200).json({
         ok: true,
         message: "Usuário autenticado",
