@@ -8,14 +8,36 @@ datasource db {
 }
 
 model User {
-  id String @id @db.Uuid @default(uuid())
-  name String @db.VarChar(255)
-  email String @db.VarChar(255) @unique
-  username String @db.VarChar(255)
-  password String @db.VarChar(255)
-  createdAt DateTime @db.Timestamp() @default(now()) @map("criado_em")
-  deleted Boolean @db.Boolean @default(false)
-  deletedAt DateTime? @db.Timestamp() @map("deletado_em")
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @db.VarChar(255)
+  email     String    @unique @db.VarChar(255)
+  username  String    @unique @db.VarChar(255)
+  password  String    @db.VarChar(255)
+  createdAt DateTime  @default(now()) @map("criado_em") @db.Timestamp()
+  deleted   Boolean   @default(false) @db.Boolean
+  deletedAt DateTime? @map("deletado_em") @db.Timestamp()
+  authToken String?   @map("auth_token") @db.Text
+
+  tweet Tweet[]
 
   @@map("users")
+}
+
+enum TweetType {
+  R
+  N
+}
+
+model Tweet {
+  id        String    @id @default(uuid()) @db.Uuid
+  content   String    @db.VarChar(255)
+  type      TweetType @default(N)
+  userId    String    @map("user_id") @db.Uuid
+  createdAt DateTime  @default(now()) @map("criado_em") @db.Timestamp()
+  deleted   Boolean   @default(false) @db.Boolean
+  deletedAt DateTime? @map("deletado_em") @db.Timestamp()
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("tweets")
 }

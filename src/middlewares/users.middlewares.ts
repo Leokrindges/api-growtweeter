@@ -10,6 +10,8 @@ export class CreateUsersMiddleware {
     const { name, email, username, password } = req.body;
 
     var passwordValidator = require("password-validator");
+    var emailValidator = require("email-validator");
+
     var passwordRequirements = new passwordValidator();
     passwordRequirements.is().min(8);
     passwordRequirements.has().uppercase();
@@ -22,34 +24,10 @@ export class CreateUsersMiddleware {
       });
     }
 
-    if (!email.EmailValidator(email)) {
+    if (!emailValidator.validate(email) || !email) {
       return res.status(400).json({
         ok: false,
         message: "E-mail inválido!",
-      });
-    }
-
-    try {
-      const emailAlreadyExists = await prismaConnection.user.count({
-        where: {
-          email: email,
-          deleted: false,
-        },
-      });
-
-      if (emailAlreadyExists > 0) {
-        return res.status(400).json({
-          ok: false,
-          message:
-            "Já existe esse e-mail cadastrado, por gentileza, digite um diferente!",
-        });
-      }
-    } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
       });
     }
 

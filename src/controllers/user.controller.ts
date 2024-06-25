@@ -32,7 +32,7 @@ export class UsersControler {
     try {
       const { limit, page } = req.query;
 
-      let limitDefault = 10;
+      let limitDefault = 5;
       let pageDefault = 1;
 
       if (limit) {
@@ -80,11 +80,11 @@ export class UsersControler {
       });
     }
   }
-  public static get(req: Request, res: Response) {
+  public static  async get(req: Request, res: Response) {
     try {
       const { userId } = req.params;
 
-      const userFound = prismaConnection.user.findUnique({
+      const userFound = await prismaConnection.user.findUnique({
         where: {
           id: userId,
           deleted: false,
@@ -112,12 +112,12 @@ export class UsersControler {
       });
     }
   }
-  public static update(req: Request, res: Response) {
+  public static async update(req: Request, res: Response) {
     try {
       const { userId } = req.params;
       const { name, email, username, password } = req.body;
 
-      const userUpdated = prismaConnection.user.update({
+      const userUpdated = await prismaConnection.user.update({
         where: {
           id: userId,
           deleted: false,
@@ -129,7 +129,7 @@ export class UsersControler {
           password,
         },
       });
-
+      
       return res.status(200).json({
         ok: true,
         message: "Usuário atualizado com sucesso!",
@@ -144,11 +144,11 @@ export class UsersControler {
       });
     }
   }
-  public static delete(req: Request, res: Response) {
+  public static async delete(req: Request, res: Response) {
     try {
       const { userId } = req.params;
 
-      const userDeleted = prismaConnection.user.update({
+      const userDeleted = await prismaConnection.user.update({
         where: {
           id: userId,
           deleted: false,
