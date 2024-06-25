@@ -1,9 +1,9 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { prismaConnection } from "../database/prisma.connection";
 import { randomUUID } from "crypto";
 
 export class AuthController {
-  public static async login(req: Request, res: Response, next: NextFunction) {
+  public static async login(req: Request, res: Response) {
     try {
       const { email, username, password } = req.body;
 
@@ -51,7 +51,7 @@ export class AuthController {
     }
   }
 
-  public static async logout(req: Request, res: Response, next: NextFunction) {
+  public static async logout(req: Request, res: Response) {
     try {
       const headers = req.headers;
 
@@ -60,16 +60,19 @@ export class AuthController {
           ok: false,
           message: "Token é obrigatório",
         });
-      }
+      }      
 
+      console.log(headers.authorization);
+
+      //USEI POIS VNA FRENTE DO TOKEN VEM "Bearer "
+      const authToken = headers.authorization.replaceAll("Bearer ", "")
+      
       await prismaConnection.user.updateMany({
         where: {
-          authToken: headers.authorization,
+            authToken: authToken
         },
-        data: {
-          authToken: null,
-        },
-      });
+        data: { authToken: null }
+    });
 
       return res.status(200).json({
         ok: true,
