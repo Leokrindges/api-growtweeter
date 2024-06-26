@@ -64,12 +64,10 @@ export class AuthController {
 
       console.log(headers.authorization);
 
-      //USEI POIS VNA FRENTE DO TOKEN VEM "Bearer "
-      const authToken = headers.authorization.replaceAll("Bearer ", "")
       
       await prismaConnection.user.updateMany({
         where: {
-            authToken: authToken
+            authToken: headers.authorization
         },
         data: { authToken: null }
     });

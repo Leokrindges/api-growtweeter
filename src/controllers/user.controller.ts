@@ -6,6 +6,36 @@ export class UsersControler {
     try {
       let { name, email, username, password } = req.body;
 
+      const emailAlreadyExists = await prismaConnection.user.findFirst({
+        where: {
+          email: email,
+          deleted: false,
+        },
+      });
+
+      if (emailAlreadyExists) {
+        return res.status(400).json({
+          ok: false,
+          message:
+            "Já existe esse e-mail cadastrado, por gentileza, digite um diferente!",
+        });
+      }
+
+      const usernameAlredyExists = await prismaConnection.user.findFirst({
+        where: {
+          username: username,
+          deleted: false,
+        },
+      });
+
+      if (usernameAlredyExists) {
+        return res.status(400).json({
+          ok: false,
+          message:
+            "Já existe um usuário com esse username, digite um diferente!",
+        });
+      }
+
       await prismaConnection.user.create({
         data: {
           name,
@@ -52,6 +82,9 @@ export class UsersControler {
         where: {
           deleted: false,
         },
+        include: {
+          tweet: true
+        }
       });
 
       const count = await prismaConnection.user.count({
@@ -80,7 +113,7 @@ export class UsersControler {
       });
     }
   }
-  public static  async get(req: Request, res: Response) {
+  public static async get(req: Request, res: Response) {
     try {
       const { userId } = req.params;
 
@@ -89,6 +122,9 @@ export class UsersControler {
           id: userId,
           deleted: false,
         },
+        include: {
+          tweet: true
+        }
       });
 
       if (!userFound) {
@@ -115,7 +151,22 @@ export class UsersControler {
   public static async update(req: Request, res: Response) {
     try {
       const { userId } = req.params;
-      const { name, email, username, password } = req.body;
+      const { name, username, password } = req.body;
+
+      const usernameAlredyExists = await prismaConnection.user.findFirst({
+        where: {
+          username: username,
+          deleted: false,
+        },
+      });
+
+      if (usernameAlredyExists) {
+        return res.status(400).json({
+          ok: false,
+          message:
+            "Já existe um usuário com esse username, digite um diferente!",
+        });
+      }
 
       const userUpdated = await prismaConnection.user.update({
         where: {
@@ -124,12 +175,11 @@ export class UsersControler {
         },
         data: {
           name,
-          email,
           username,
           password,
         },
       });
-      
+
       return res.status(200).json({
         ok: true,
         message: "Usuário atualizado com sucesso!",
