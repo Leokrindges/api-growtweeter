@@ -12,7 +12,6 @@ export class UserRoutes {
     router.get("/:userId", UsersControler.get);
     router.put(
       "/:userId",
-      [CreateUsersMiddleware.validate],
       UsersControler.update
     );
     router.delete("/:userId", UsersControler.delete);
