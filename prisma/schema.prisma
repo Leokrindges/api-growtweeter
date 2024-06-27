@@ -20,6 +20,8 @@ model User {
 
   tweet Tweet[]
 
+  like Like?
+
   @@map("users")
 }
 
@@ -39,5 +41,19 @@ model Tweet {
 
   user User @relation(fields: [userId], references: [id])
 
+  like Like[]
+
   @@map("tweets")
+}
+
+model Like {
+  id      String   @id @default(uuid()) @db.Uuid
+  userId  String   @unique @map("user_id") @db.Uuid
+  tweetId String   @map("tweet_id") @db.Uuid
+  likedIn DateTime @default(now()) @map("liked_in") @db.Timestamp()
+
+  tweet Tweet @relation(fields: [tweetId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@map("likes")
 }
