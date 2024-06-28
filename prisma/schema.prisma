@@ -22,7 +22,7 @@ model User {
 
   like Like?
 
-  reply Reply?
+  reply Reply[]
 
   @@map("users")
 }
@@ -34,12 +34,10 @@ enum TweetType {
 
 model Tweet {
   id        String    @id @default(uuid()) @db.Uuid
-  content   String    @db.VarChar(255)
+  content   String?    @db.VarChar(255)
   type      TweetType @default(N)
   userId    String    @map("user_id") @db.Uuid
   createdAt DateTime  @default(now()) @map("criado_em") @db.Timestamp()
-  deleted   Boolean   @default(false) @db.Boolean
-  deletedAt DateTime? @map("deletado_em") @db.Timestamp()
 
   user User @relation(fields: [userId], references: [id])
 
@@ -63,7 +61,7 @@ model Like {
 
 model Reply {
   id      String @id @default(uuid()) @db.Uuid
-  userId  String @unique @map("user_id") @db.Uuid
+  userId  String @map("user_id") @db.Uuid
   tweetId String @map("tweet_id") @db.Uuid
 
   tweet Tweet @relation(fields: [tweetId], references: [id])
