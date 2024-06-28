@@ -155,7 +155,6 @@ export class TweetController {
       const tweetDeleted = await prismaConnection.tweet.delete({
         where: {
           id: tweetId,
-          deleted: false,
         },
       });
 
