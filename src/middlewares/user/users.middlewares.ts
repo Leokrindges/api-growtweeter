@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { prismaConnection } from "../database/prisma.connection";
 
 export class CreateUsersMiddleware {
   public static async validate(
