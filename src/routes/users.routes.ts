@@ -9,7 +9,6 @@ export class UserRoutes {
     // definições de rotas para um usuário
     router.post("/", [CreateUsersMiddleware.validate], UsersControler.create);
     router.get("/", UsersControler.list);
-    router.get("/:userId", UsersControler.get);
     router.put(
       "/:userId",
       UsersControler.update

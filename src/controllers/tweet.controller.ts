@@ -47,7 +47,6 @@ export class TweetController {
         pageDefault = Number(page);
       }
 
-      //FARÁ A LISTAGEM DE TODOS OS TWEETS, REPLYS E LIKES NOS TWEETS DO USUÁRIO LOGADO
       const tweets = await prismaConnection.tweet.findMany({
         skip: limitDefault * (pageDefault - 1),
         take: limitDefault,
