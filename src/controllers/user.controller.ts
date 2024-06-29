@@ -84,8 +84,8 @@ export class UsersControler {
         },
         include: {
           tweet: true,
-          like: true
-        }
+          like: true,
+        },
       });
 
       const count = await prismaConnection.user.count({
@@ -124,8 +124,20 @@ export class UsersControler {
           deleted: false,
         },
         include: {
-          tweet: true
-        }
+          tweet: true,
+          following: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  username: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       if (!userFound) {
