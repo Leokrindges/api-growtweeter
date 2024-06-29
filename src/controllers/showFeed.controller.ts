@@ -21,11 +21,11 @@ export class ShowFeedController {
       }
 
       const showFeed = await prismaConnection.user.findFirst({
-        skip: limitDefault * (pageDefault - 1),
-        take: limitDefault,
         where: { id: (user as User).id },
-        include: {
+        select: {
           tweet: {
+            skip: limitDefault * (pageDefault - 1),
+            take: limitDefault,
             orderBy: { createdAt: "desc" },
             include: {
               like: {
@@ -60,19 +60,6 @@ export class ShowFeedController {
                 },
               },
             },
-          },
-          followedBy: {
-            select: {
-              follower: {
-                select: {
-                  name: true,
-                  username: true,
-                },
-              },
-            },
-          },
-          following: {
-            select: { user: { select: { name: true, username: true } } },
           },
         },
       });
