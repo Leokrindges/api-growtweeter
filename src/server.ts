@@ -7,6 +7,7 @@ import { TweetRoutes } from "./routes/tweet.routes";
 import { LikeRoutes } from "./routes/like.routes";
 import { ReplyRoutes } from "./routes/reply.routes";
 import { FollowRoutes } from "./routes/follow.routes";
+import { UnfollowRoutes } from "./routes/unfollow.routes";
 
 const app = express();
 app.use(express.json());
@@ -18,6 +19,7 @@ app.use("/tweet", TweetRoutes.execute());
 app.use("/like", LikeRoutes.execute());
 app.use("/reply", ReplyRoutes.execute())
 app.use("/follow", FollowRoutes.execute())
+app.use("/unfollow",UnfollowRoutes.execute())
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);

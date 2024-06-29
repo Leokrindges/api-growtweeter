@@ -1,9 +1,9 @@
+import { User } from "@prisma/client";
 import { Request, Response } from "express";
 import { prismaConnection } from "../database/prisma.connection";
-import { User } from "@prisma/client";
 
-export class FollowController {
-  public static async follow(req: Request, res: Response) {
+export class UnfollowerController {
+  public static async unfollower(req: Request, res: Response) {
     try {
       const { followerId } = req.params;
       const { user } = req.body;
@@ -11,7 +11,7 @@ export class FollowController {
       if (followerId === (user as User).id) {
         return res.status(400).json({
           ok: false,
-          message: "Não é possivel seguir a si mesmo",
+          message: "Não é possivel deixar seguir a si mesmo",
         });
       }
 
@@ -25,8 +25,9 @@ export class FollowController {
           message: "Usuário inválido",
         });
       }
+
       const checkAlredyFollow = await prismaConnection.follower.findFirst({
-        where: { followerId: followerId, userId: (user as User).id },
+        where: { followerId: userFound.id, userId: (user as User).id },
         include: {
           follower: {
             select: {
@@ -36,26 +37,25 @@ export class FollowController {
         },
       });
 
-      if (checkAlredyFollow) {
+      if (!checkAlredyFollow) {
         return res.status(400).json({
           ok: false,
-          message: `O usuário ${(user as User).name} já segue ${
-            checkAlredyFollow.follower.name
+          message: `O usuário ${(user as User).name} não segue ${
+            userFound.name
           }`,
         });
       }
 
-      const createFollower = await prismaConnection.follower.create({
-        data: {
-          userId: (user as User).id,
-          followerId: followerId,
+      const unfollow = await prismaConnection.follower.delete({
+        where: {
+          id: checkAlredyFollow.id,
         },
       });
 
       return res.status(201).json({
         ok: true,
-        message: "Seguindo com sucesso",
-        createFollower,
+        message: "Deixar de seguir realizado com sucesso",
+        unfollow,
       });
     } catch (err) {
       return res.status(500).json({
