@@ -29,7 +29,7 @@ export class ReplyController {
 
       await prismaConnection.reply.create({
         data: {
-          tweetId: createTweetReply.id,
+          tweetId: tweetId,
           userId: (user as User).id,
         },
       });

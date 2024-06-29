@@ -12,8 +12,8 @@ export class LikeController {
       const whosTweet = await prismaConnection.tweet.findMany({
         where: { id: tweetId, userId: (user as User).id },
         include: {
-            user: true
-        }
+          user: true,
+        },
       });
 
       if (whosTweet.length > 0) {
@@ -61,25 +61,23 @@ export class LikeController {
           ok: true,
           message: "Like removido com sucesso",
           tweetLiked,
-          totalLikes: countLiked - 1
+          totalLikes: countLiked - 1,
         });
-        
       } else {
-        const tweetLiked = await prismaConnection.like.create({
+        const createLike = await prismaConnection.like.create({
           data: {
             tweetId: tweetId,
             userId: user.id,
-          },
+          }
         });
 
         return res.status(201).json({
           ok: true,
           message: "Tweet curtido com sucesso",
-          tweetLiked,
-          totalLikes: countLiked + 1
+          createLike,
+          totalLikes: countLiked + 1,
         });
       }
-
     } catch (err) {
       return res.status(500).json({
         ok: false,

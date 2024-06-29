@@ -83,7 +83,8 @@ export class UsersControler {
           deleted: false,
         },
         include: {
-          tweet: true
+          tweet: true,
+          like: true
         }
       });
 
