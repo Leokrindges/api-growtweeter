@@ -67,7 +67,7 @@ export class ReplyController {
 
       const replyFound = await prismaConnection.reply.findFirst({
         where: { tweet: { type: "R", id: replyId }, userId: (user as User).id },
-        include: {
+        select: {
           tweet: true,
           user: {
             select: {

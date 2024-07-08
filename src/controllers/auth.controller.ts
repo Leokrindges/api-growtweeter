@@ -22,13 +22,6 @@ export class AuthController {
         });
       }
 
-      if (userFound.authToken) {
-        return res.status(400).json({
-          ok: false,
-          message: "Usuário já autenticado",
-        });
-      }
-
       const authToken = randomUUID();
 
       await prismaConnection.user.update({
