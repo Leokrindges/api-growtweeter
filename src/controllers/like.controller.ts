@@ -64,7 +64,7 @@ export class LikeController {
           totalLikes: countLiked - 1,
         });
       } else {
-        const createLike = await prismaConnection.like.create({
+        const data = await prismaConnection.like.create({
           data: {
             tweetId: tweetId,
             userId: user.id,
@@ -74,7 +74,7 @@ export class LikeController {
         return res.status(201).json({
           ok: true,
           message: "Tweet curtido com sucesso",
-          createLike,
+          data,
           totalLikes: countLiked + 1,
         });
       }

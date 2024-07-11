@@ -20,7 +20,7 @@ export class ShowFeedController {
         pageDefault = Number(page);
       }
 
-      const showFeed = await prismaConnection.user.findFirst({
+      const data = await prismaConnection.user.findFirst({
         where: { id: (user as User).id },
         select: {
           tweet: {
@@ -73,7 +73,7 @@ export class ShowFeedController {
       return res.status(200).json({
         ok: true,
         message: "Listado Feed com sucesso",
-        showFeed,
+        data,
         pagination: {
           limit: limitDefault,
           page: pageDefault,

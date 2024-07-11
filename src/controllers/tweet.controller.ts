@@ -7,7 +7,7 @@ export class TweetController {
     try {
       const { user, content } = req.body;
 
-      const tweetCreated = await prismaConnection.tweet.create({
+      const data = await prismaConnection.tweet.create({
         data: {
           userId: (user as User).id,
           content: content,
@@ -19,7 +19,7 @@ export class TweetController {
         message: `Tweet cadastrado com sucesso para o usuário ${
           (user as User).name
         }`,
-        tweetCreated,
+        data,
       });
     } catch (err) {
       return res.status(500).json({
@@ -131,7 +131,7 @@ export class TweetController {
         });
       }
 
-      const tweetUpdate = await prismaConnection.tweet.update({
+      const data = await prismaConnection.tweet.update({
         where: { id: tweetId },
         data: {
           content: content,
@@ -141,7 +141,7 @@ export class TweetController {
       return res.status(200).json({
         ok: true,
         message: "Tweet atualizado com sucesso",
-        tweetUpdate,
+        data,
       });
     } catch (err) {
       return res.status(500).json({
@@ -175,7 +175,7 @@ export class TweetController {
         });
       }
 
-      const tweetDeleted = await prismaConnection.tweet.delete({
+      const data = await prismaConnection.tweet.delete({
         where: {
           id: tweetId,
         },
@@ -184,7 +184,7 @@ export class TweetController {
       return res.status(200).json({
         ok: true,
         message: "Tweet deletado com sucesso",
-        tweetDeleted,
+        data,
       });
     } catch (err) {
       return res.status(500).json({
