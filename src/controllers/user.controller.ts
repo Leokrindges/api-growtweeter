@@ -36,7 +36,7 @@ export class UsersControler {
         });
       }
 
-      await prismaConnection.user.create({
+      const data = await prismaConnection.user.create({
         data: {
           name,
           email,
@@ -48,6 +48,7 @@ export class UsersControler {
       return res.status(200).json({
         ok: true,
         message: "Usuário criado com sucesso!",
+        data
       });
     } catch (err) {
       return res.status(500).json({
