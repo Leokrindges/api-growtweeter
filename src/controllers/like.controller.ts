@@ -50,7 +50,7 @@ export class LikeController {
       });
 
       if (userliked) {
-        const tweetLiked = await prismaConnection.like.delete({
+        const tweetRemoveLike = await prismaConnection.like.delete({
           where: {
             tweetId: tweetId,
             userId: user.id,
@@ -60,11 +60,11 @@ export class LikeController {
         return res.status(201).json({
           ok: true,
           message: "Like removido com sucesso",
-          tweetLiked,
+          tweetRemoveLike,
           totalLikes: countLiked - 1,
         });
       } else {
-        const data = await prismaConnection.like.create({
+        const tweetLiked = await prismaConnection.like.create({
           data: {
             tweetId: tweetId,
             userId: user.id,
@@ -74,7 +74,7 @@ export class LikeController {
         return res.status(201).json({
           ok: true,
           message: "Tweet curtido com sucesso",
-          data,
+          tweetLiked,
           totalLikes: countLiked + 1,
         });
       }
