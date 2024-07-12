@@ -57,22 +57,12 @@ export class TweetController {
         include: {
           like: {
             select: {
-              user: {
-                select: {
-                  name: true,
-                  username: true,
-                },
-              },
+              user: true,
             },
           },
           reply: {
             select: {
-              user: {
-                select: {
-                  name: true,
-                  username: true,
-                },
-              },
+              user: true,
             },
           },
         },
