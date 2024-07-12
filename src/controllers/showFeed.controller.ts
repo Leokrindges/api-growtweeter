@@ -20,60 +20,43 @@ export class ShowFeedController {
         pageDefault = Number(page);
       }
 
-      const data = await prismaConnection.user.findFirst({
-        where: { id: (user as User).id },
-        select: {
-          tweet: {
-            skip: limitDefault * (pageDefault - 1),
-            take: limitDefault,
-            orderBy: { createdAt: "desc" },
-            include: {
-              like: {
-                select: {
-                  user: {
-                    select: {
-                      name: true,
-                      username: true,
-                    },
-                  },
-                },
-              },
-              reply: {
-                select: {
-                  tweet: {
-                    select: {
-                      content: true,
-                      user: {
-                        select: {
-                          name: true,
-                          username: true,
-                        },
-                      },
-                    },
-                  },
-                  user: {
-                    select: {
-                      name: true,
-                      username: true,
-                    },
-                  },
-                },
-              },
+      const followersIds = await prismaConnection.follower.findMany({
+        where: {
+          followerId: (user as User).id,
+        },
+        select: { userId: true },
+      });
+
+      const userIds = followersIds.map((follower) => follower.userId);
+      userIds.push((user as User).id);
+
+      const feed = await prismaConnection.tweet.findMany({
+        skip: limitDefault * (pageDefault - 1),
+        take: limitDefault,
+        orderBy: { createdAt: "desc" },
+        where: { userId: { in: userIds } },
+        include: {
+          like: {
+            select: {
+              user: true,
+            },
+          },
+          reply: {
+            select: {
+              user: true,
             },
           },
         },
       });
-
-      const count = await prismaConnection.user.count({
-        where: {
-          deleted: false,
-        },
+      
+      const count = await prismaConnection.tweet.count({
+        where: { userId: { in: userIds } },
       });
 
       return res.status(200).json({
         ok: true,
         message: "Listado Feed com sucesso",
-        data,
+        feed,
         pagination: {
           limit: limitDefault,
           page: pageDefault,
