@@ -8,7 +8,7 @@ export class ReplyRoutes {
 
     router.post("/:tweetId", [AuthMiddleware.validate], ReplyController.create)
     router.get("/:replyId", [AuthMiddleware.validate], ReplyController.get)
-    router.put("/:replyId", [AuthMiddleware.validate], ReplyController.update)
+    // router.put("/:replyId", [AuthMiddleware.validate], ReplyController.update)
     router.delete("/:replyId", [AuthMiddleware.validate], ReplyController.delete)
 
     return router;
