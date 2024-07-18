@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from "express";
-import { prismaConnection } from "../database/prisma.connection";
 import { User } from "@prisma/client";
+import { Request, Response } from "express";
+import { prismaConnection } from "../database/prisma.connection";
 
 export class TweetController {
   public static async create(req: Request, res: Response) {
@@ -101,7 +101,7 @@ export class TweetController {
 
   public static async update(req: Request, res: Response) {
     try {
-      const { tweetId } = req.params;
+      const tweetId = req.params.id;
       const { content, user } = req.body;
 
       const tweetBelongsUser = await prismaConnection.tweet.findFirst({
@@ -109,15 +109,12 @@ export class TweetController {
           id: tweetId,
           userId: user.id,
         },
-        include: {
-          user: true,
-        },
       });
 
       if (!tweetBelongsUser) {
-        return res.status(400).json({
+        return res.status(404).json({
           ok: false,
-          message: "Tweet inválido",
+          message: "Tweet não encontrado",
         });
       }
 
@@ -145,7 +142,7 @@ export class TweetController {
 
   public static async delete(req: Request, res: Response) {
     try {
-      const { tweetId } = req.params;
+      const tweetId = req.params.id;
       const { user } = req.body;
 
       const tweetBelongsUser = await prismaConnection.tweet.findFirst({
@@ -153,15 +150,12 @@ export class TweetController {
           id: tweetId,
           userId: user.id,
         },
-        include: {
-          user: true,
-        },
       });
 
       if (!tweetBelongsUser) {
-        return res.status(400).json({
+        return res.status(404).json({
           ok: false,
-          message: "Tweet inválido",
+          message: "Tweet não encontrado",
         });
       }
 
