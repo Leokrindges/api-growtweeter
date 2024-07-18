@@ -61,7 +61,6 @@ export class UsersControler {
   }
   public static async list(req: Request, res: Response) {
     try {
-
       const user = await prismaConnection.user.findMany({
         orderBy: {
           createdAt: "desc",
@@ -98,22 +97,35 @@ export class UsersControler {
  
   public static async update(req: Request, res: Response) {
     try {
-      const { userId } = req.params;
+      const userId = req.params.id;
       const { name, username, password } = req.body;
 
-      const usernameAlredyExists = await prismaConnection.user.findFirst({
-        where: {
-          username: username,
-          deleted: false,
-        },
+      const userFound = await prismaConnection.user.findUnique({
+        where: { id: userId, deleted: false }
       });
 
-      if (usernameAlredyExists) {
-        return res.status(400).json({
+      if(!userFound) {
+        return res.status(404).json({
           ok: false,
-          message:
-            "Já existe um usuário com esse username, digite um diferente!",
+          message: "Usuário não encontrado"
+        })
+      }
+
+      if(username) {
+        const usernameAlredyExists = await prismaConnection.user.findFirst({
+          where: {
+            username: username,
+            deleted: false,
+          },
         });
+
+        if (usernameAlredyExists) {
+          return res.status(400).json({
+            ok: false,
+            message:
+              "Já existe um usuário com esse username, digite um diferente!",
+          });
+        }
       }
 
       const userUpdated = await prismaConnection.user.update({
@@ -144,12 +156,22 @@ export class UsersControler {
   }
   public static async delete(req: Request, res: Response) {
     try {
-      const { userId } = req.params;
+      const userId  = req.params.id;
+
+      const userFound = await prismaConnection.user.findUnique({
+        where: { id: userId, deleted: false }
+      });
+
+      if(!userFound) {
+        return res.status(404).json({
+          ok: false,
+          message: "Usuário não encontrado"
+        })
+      }
 
       const userDeleted = await prismaConnection.user.update({
         where: {
           id: userId,
-          deleted: false,
         },
         data: {
           deleted: true,
