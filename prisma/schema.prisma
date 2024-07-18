@@ -20,9 +20,7 @@ model User {
 
   tweet Tweet[]
 
-  like Like?
-
-  reply Reply[]
+  like Like[]
 
   followedBy Follower[] @relation("followedBy")
   following  Follower[] @relation("following")
@@ -45,14 +43,15 @@ model Tweet {
   user User @relation(fields: [userId], references: [id])
 
   like  Like[]
-  reply Reply[]
+  reply Reply[] @relation("replies")
+  tweetReply Reply? @relation("tweetReply")
 
   @@map("tweets")
 }
 
 model Like {
   id      String   @id @default(uuid()) @db.Uuid
-  userId  String   @unique @map("user_id") @db.Uuid
+  userId  String   @map("user_id") @db.Uuid
   tweetId String   @map("tweet_id") @db.Uuid
   likedIn DateTime @default(now()) @map("liked_in") @db.Timestamp()
 
@@ -60,15 +59,16 @@ model Like {
   user  User  @relation(fields: [userId], references: [id])
 
   @@map("likes")
+  @@unique([userId, tweetId])
 }
 
 model Reply {
   id      String @id @default(uuid()) @db.Uuid
-  userId  String @map("user_id") @db.Uuid
-  tweetId String @map("tweet_id") @db.Uuid
+  tweetOriginalId String @map("tweet_original_id") @db.Uuid
+  tweetReplyId String @map("tweet_reply_id") @db.Uuid @unique
 
-  tweet Tweet @relation(fields: [tweetId], references: [id])
-  user  User  @relation(fields: [userId], references: [id])
+  tweet Tweet @relation("replies", fields: [tweetOriginalId], references: [id])
+  reply Tweet @relation("tweetReply", fields: [tweetReplyId], references: [id])
 
   @@map("replys")
 }
@@ -78,8 +78,8 @@ model Follower {
   userId     String @map("user_id") @db.Uuid
   followerId String @map("follower_id") @db.Uuid
 
-  user     User @relation("followedBy", fields: [followerId], references: [id])
-  follower User @relation("following", fields: [userId], references: [id])
+  user     User @relation("following", fields: [userId], references: [id])
+  follower User @relation("followedBy", fields: [followerId], references: [id])
 
   @@map("followers")
 }
