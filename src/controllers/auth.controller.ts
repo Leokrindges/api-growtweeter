@@ -1,17 +1,17 @@
+import { randomUUID } from "crypto";
 import { Request, Response } from "express";
 import { prismaConnection } from "../database/prisma.connection";
-import { randomUUID } from "crypto";
 
 export class AuthController {
   public static async login(req: Request, res: Response) {
     try {
       const { email, username, password } = req.body;
 
-      const userFound = await prismaConnection.user.findUnique({
+      const userFound = await prismaConnection.user.findFirst({
         where: {
-          email: email,
-          username: username,
+          OR: [{ email }, { username }],
           password: password,
+          deleted: false,
         },
       });
 
@@ -26,10 +26,10 @@ export class AuthController {
 
       await prismaConnection.user.update({
         where: { id: userFound.id },
-        data: { authToken }
-    });
+        data: { authToken },
+      });
 
-      await res.status(200).json({
+      return res.status(200).json({
         ok: true,
         message: "Usuário autenticado",
         authToken,
@@ -53,23 +53,19 @@ export class AuthController {
           ok: false,
           message: "Token é obrigatório",
         });
-      }      
+      }
 
-      console.log(headers.authorization);
-
-      
       await prismaConnection.user.updateMany({
         where: {
-            authToken: headers.authorization
+          authToken: headers.authorization,
         },
-        data: { authToken: null }
-    });
+        data: { authToken: null },
+      });
 
       return res.status(200).json({
         ok: true,
         message: "Logout realizado com sucesso",
       });
-
     } catch (err) {
       return res.status(500).json({
         ok: false,
