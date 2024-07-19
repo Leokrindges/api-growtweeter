@@ -17,7 +17,7 @@ export class AuthMiddleware {
     }
 
     const userFound = await prismaConnection.user.findFirst({
-      where: { authToken: headers.authorization },
+      where: { authToken: headers.authorization, deleted: false },
     });
 
     if (!userFound) {

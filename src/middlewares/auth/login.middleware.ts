@@ -12,21 +12,20 @@ export class LoginMiddleware {
         message: "Informe um e-mail ou username",
       });
     }
-    if (email) {
-      if (typeof email !== "string" || !emailValidator.validate(email)) {
-        return res.status(400).json({
-          ok: false,
-          message: "Informe um e-mail válido",
-        });
-      }
+
+    if (email && (typeof email !== "string" || !emailValidator.validate(email))) {
+      return res.status(400).json({
+        ok: false,
+        message: "Informe um e-mail válido",
+      });
     }
-    if (username) {
-      if (typeof username !== "string") {
-        return res.status(400).json({
-          ok: false,
-          message: "Informe um username válido",
-        });
-      }
+
+
+    if (username && typeof username !== "string") {
+      return res.status(400).json({
+        ok: false,
+        message: "Informe um username válido",
+      });
     }
 
     if (!password || typeof password !== "string") {
