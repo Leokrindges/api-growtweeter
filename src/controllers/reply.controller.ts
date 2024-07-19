@@ -5,7 +5,7 @@ import { prismaConnection } from "../database/prisma.connection";
 export class ReplyController {
   public static async create(req: Request, res: Response) {
     try {
-      const tweetId  = req.params.id;
+      const tweetId = req.params.id;
       const { user, content } = req.body;
 
       const tweetFound = await prismaConnection.tweet.findFirst({
@@ -30,7 +30,7 @@ export class ReplyController {
       await prismaConnection.reply.create({
         data: {
           tweetOriginalId: tweetId,
-          tweetReplyId: createTweetReply.id 
+          tweetReplyId: createTweetReply.id,
         },
       });
 
@@ -56,15 +56,11 @@ export class ReplyController {
 
   public static async get(req: Request, res: Response) {
     try {
-      const tweetId  = req.params.id;
+      const tweetId = req.params.id;
       const { user } = req.body;
 
-      const replyFound = await prismaConnection.reply.findFirst({
-        where: { tweet: { type: "R", id: tweetId }, userId: (user as User).id },
-        select: {
-          tweet: true,
-          user: true,
-        },
+      const replyFound = await prismaConnection.tweet.findFirst({
+        where: { userId: user.id, id: tweetId, type: "R" },
       });
 
       if (!replyFound) {
@@ -91,11 +87,11 @@ export class ReplyController {
 
   public static async delete(req: Request, res: Response) {
     try {
-      const { replyId } = req.params;
+      const  tweetId  = req.params.id;
       const { user } = req.body;
 
       const replyFound = await prismaConnection.reply.findFirst({
-        where: { tweetId: replyId, userId: (user as User).id },
+        where: { tweetReplyId: tweetId },
       });
 
       if (!replyFound) {
@@ -113,7 +109,7 @@ export class ReplyController {
 
       const replyDeleted = await prismaConnection.tweet.delete({
         where: {
-          id: replyId,
+          id: tweetId,
           AND: { type: "R", userId: (user as User).id },
         },
       });
