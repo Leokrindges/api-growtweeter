@@ -21,13 +21,11 @@ export class ShowFeedController {
       }
 
       const followersIds = await prismaConnection.follower.findMany({
-        where: {
-          followerId: (user as User).id,
-        },
-        select: { userId: true },
+        where: { userId: user.id },
+        select: { followerId: true },
       });
 
-      const userIds = followersIds.map((follower) => follower.userId);
+      const userIds = followersIds.map((follower) => follower.followerId);
       userIds.push((user as User).id);
 
       const feed = await prismaConnection.tweet.findMany({
@@ -36,19 +34,10 @@ export class ShowFeedController {
         orderBy: { createdAt: "desc" },
         where: { userId: { in: userIds } },
         include: {
-          like: {
-            select: {
-              user: true,
-            },
-          },
-          reply: {
-            select: {
-              user: true,
-            },
-          },
+          _count:true,          
         },
       });
-      
+
       const count = await prismaConnection.tweet.count({
         where: { userId: { in: userIds } },
       });
