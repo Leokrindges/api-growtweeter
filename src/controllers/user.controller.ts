@@ -119,7 +119,7 @@ export class UsersControler {
           },
         });
 
-        if (usernameAlredyExists) {
+        if (usernameAlredyExists && usernameAlredyExists.id != userId) {
           return res.status(400).json({
             ok: false,
             message:
