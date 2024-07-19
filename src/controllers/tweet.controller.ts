@@ -55,16 +55,7 @@ export class TweetController {
           userId: user.id,
         },
         include: {
-          like: {
-            select: {
-              user: true,
-            },
-          },
-          reply: {
-            select: {
-              user: true,
-            },
-          },
+          _count:{select:{like:true, reply: true}},
         },
       });
 

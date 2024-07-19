@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { AuthMiddleware } from "../middlewares/auth/auth.middleware";
 import { TweetController } from "../controllers/tweet.controller";
+import { AuthMiddleware } from "../middlewares/auth/auth.middleware";
+import { ValidUuidParamsMiddleware } from '../middlewares/common/valid-uuid-params.middleware';
 import { CreateTweetMiddleware } from "../middlewares/tweet/tweet.middlewares";
 
 export class TweetRoutes {
@@ -14,10 +15,10 @@ export class TweetRoutes {
       TweetController.create
     );
     router.get("/", [AuthMiddleware.validate], TweetController.list);
-    router.put("/:tweetId", [AuthMiddleware.validate], TweetController.update);
+    router.put("/:id", [AuthMiddleware.validate, ValidUuidParamsMiddleware.validate], TweetController.update);
     router.delete(
-      "/:tweetId",
-      [AuthMiddleware.validate],
+      "/:id",
+      [AuthMiddleware.validate, ValidUuidParamsMiddleware.validate],
       TweetController.delete
     );
 
