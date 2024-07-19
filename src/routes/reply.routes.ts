@@ -1,16 +1,20 @@
 import { Router } from "express";
-import { AuthMiddleware } from "../middlewares/auth/auth.middleware";
 import { ReplyController } from "../controllers/reply.controller";
+import { AuthMiddleware } from "../middlewares/auth/auth.middleware";
+import { ValidUuidParamsMiddleware } from '../middlewares/common/valid-uuid-params.middleware';
 
 export class ReplyRoutes {
   public static execute(): Router {
     const router = Router();
 
-    router.post("/:tweetId", [AuthMiddleware.validate], ReplyController.create)
-    router.get("/:replyId", [AuthMiddleware.validate], ReplyController.get)
-    // router.put("/:replyId", [AuthMiddleware.validate], ReplyController.update)
-    router.delete("/:replyId", [AuthMiddleware.validate], ReplyController.delete)
+    router.post("/:id", [AuthMiddleware.validate, ValidUuidParamsMiddleware.validate], ReplyController.create)
+    router.get("/:id", [AuthMiddleware.validate, ValidUuidParamsMiddleware.validate], ReplyController.get)
+    router.delete("/:id", [AuthMiddleware.validate, ValidUuidParamsMiddleware.validate], ReplyController.delete)
 
     return router;
   }
 }
+
+
+
+
