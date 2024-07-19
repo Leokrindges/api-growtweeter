@@ -50,7 +50,7 @@ export class LikeController {
       });
 
       if (userliked) {
-        const tweetRemoveLike = await prismaConnection.like.delete({
+        const tweetRemoveLike = await prismaConnection.like.deleteMany({
           where: {
             tweetId: tweetId,
             userId: user.id,
@@ -68,7 +68,7 @@ export class LikeController {
           data: {
             tweetId: tweetId,
             userId: user.id,
-          }
+          },
         });
 
         return res.status(201).json({
