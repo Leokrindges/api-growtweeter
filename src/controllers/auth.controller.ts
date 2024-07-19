@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { Request, Response } from "express";
 import { prismaConnection } from "../database/prisma.connection";
+import { validate as validUuid } from "uuid";
 
 export class AuthController {
   public static async login(req: Request, res: Response) {
@@ -52,6 +53,13 @@ export class AuthController {
         return res.status(401).json({
           ok: false,
           message: "Token é obrigatório",
+        });
+      }
+
+      if (!validUuid(headers.authorization)) {
+        return res.status(400).json({
+          ok: false,
+          message: "Token invalido",
         });
       }
 
