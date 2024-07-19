@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { UsersControler } from "../controllers/user.controller";
+import { ValidUuidParamsMiddleware } from '../middlewares/common/valid-uuid-params.middleware';
+import { UpdateUsersMiddleware } from '../middlewares/user/update-users.middlewares';
 import { CreateUsersMiddleware } from "../middlewares/user/users.middlewares";
 
 export class UserRoutes {
@@ -10,10 +12,11 @@ export class UserRoutes {
     router.post("/", [CreateUsersMiddleware.validate], UsersControler.create);
     router.get("/", UsersControler.list);
     router.put(
-      "/:userId",
+      "/:id",
+      [ValidUuidParamsMiddleware.validate, UpdateUsersMiddleware.validate],
       UsersControler.update
     );
-    router.delete("/:userId", UsersControler.delete);
+    router.delete("/:id", [ValidUuidParamsMiddleware.validate], UsersControler.delete);
 
     return router;
   }
