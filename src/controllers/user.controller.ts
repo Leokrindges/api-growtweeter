@@ -1,96 +1,42 @@
 import { Request, Response } from "express";
-import { prismaConnection } from "../database/prisma.connection";
+import { UserService } from '../services/user.service';
+import { onError } from '../utils/on-error.util';
 
 export class UsersControler {
   public static async create(req: Request, res: Response) {
     try {
       let { name, email, username, password } = req.body;
 
-      const emailAlreadyExists = await prismaConnection.user.findFirst({
-        where: {
-          email: email,
-        },
-      });
-
-      if (emailAlreadyExists) {
-        return res.status(400).json({
-          ok: false,
-          message:
-            "Já existe esse e-mail cadastrado, por gentileza, digite um diferente!",
-        });
-      }
-
-      const usernameAlredyExists = await prismaConnection.user.findFirst({
-        where: {
-          username: username,
-          deleted: false,
-        },
-      });
-
-      if (usernameAlredyExists) {
-        return res.status(400).json({
-          ok: false,
-          message:
-            "Já existe um usuário com esse username, digite um diferente!",
-        });
-      }
-
-      const data = await prismaConnection.user.create({
-        data: {
-          name,
-          email,
-          username,
-          password,
-        },
-      });
-
+      const service = new UserService();
+      const data = await service.createUser({
+        name,
+        email,
+        username,
+        password
+      })
+      
       return res.status(200).json({
         ok: true,
         message: "Usuário criado com sucesso!",
         data
       });
     } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
-      });
+      return onError(err, res)
     }
   }
-  public static async list(req: Request, res: Response) {
+  
+  public static async list(_: Request, res: Response) {
     try {
-      const user = await prismaConnection.user.findMany({
-        orderBy: {
-          createdAt: "desc",
-        },
-        where: {
-          deleted: false,
-        },
-        include: {
-          tweet: true,
-          like: true,
-        },
-      });
-
-      const count = await prismaConnection.user.count({
-        where: {
-          deleted: false,
-        },
-      });
+      const service = new UserService()
+      const users = await service.listUsers();
 
       return res.status(200).json({
         ok: true,
         message: "Usuário listado com sucesso!",
-        user: user,
+        user: users,
       });
     } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
-      });
+      return onError(err, res)
     }
   }
  
@@ -99,45 +45,13 @@ export class UsersControler {
       const userId = req.params.id;
       const { name, username, password } = req.body;
 
-      const userFound = await prismaConnection.user.findUnique({
-        where: { id: userId, deleted: false }
-      });
-
-      if(!userFound) {
-        return res.status(404).json({
-          ok: false,
-          message: "Usuário não encontrado"
-        })
-      }
-
-      if(username) {
-        const usernameAlredyExists = await prismaConnection.user.findFirst({
-          where: {
-            username: username,
-            deleted: false,
-          },
-        });
-
-        if (usernameAlredyExists && usernameAlredyExists.id != userId) {
-          return res.status(400).json({
-            ok: false,
-            message:
-              "Já existe um usuário com esse username, digite um diferente!",
-          });
-        }
-      }
-
-      const userUpdated = await prismaConnection.user.update({
-        where: {
-          id: userId,
-          deleted: false,
-        },
-        data: {
-          name,
-          username,
-          password,
-        },
-      });
+      const service = new UserService()
+      const userUpdated = await service.updateUser({
+        userId,
+        name,
+        password,
+        username
+      })
 
       return res.status(200).json({
         ok: true,
@@ -145,38 +59,16 @@ export class UsersControler {
         user: userUpdated,
       });
     } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
-      });
+      return onError(err, res)
     }
   }
+
   public static async delete(req: Request, res: Response) {
     try {
       const userId  = req.params.id;
 
-      const userFound = await prismaConnection.user.findUnique({
-        where: { id: userId, deleted: false }
-      });
-
-      if(!userFound) {
-        return res.status(404).json({
-          ok: false,
-          message: "Usuário não encontrado"
-        })
-      }
-
-      const userDeleted = await prismaConnection.user.update({
-        where: {
-          id: userId,
-        },
-        data: {
-          deleted: true,
-          deletedAt: new Date(),
-        },
-      });
+      const service = new UserService();
+      const userDeleted = await service.deleteUser(userId)
 
       return res.status(200).json({
         ok: true,
@@ -184,12 +76,7 @@ export class UsersControler {
         userDeleted,
       });
     } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
-      });
+      return onError(err, res)
     }
   }
 }

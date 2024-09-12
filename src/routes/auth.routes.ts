@@ -7,7 +7,6 @@ export class AuthRoutes {
     const router = Router();
 
     router.post("/signin", [LoginMiddleware.validate], AuthController.login);
-    router.post("/logout", [AuthController.logout]);
 
     return router;
   }

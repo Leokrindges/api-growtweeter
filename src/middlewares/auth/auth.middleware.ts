@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { prismaConnection } from "../../database/prisma.connection";
+import { JWT } from '../../libs/jwt.lib';
 
 export class AuthMiddleware {
   public static async validate(
@@ -7,27 +7,29 @@ export class AuthMiddleware {
     res: Response,
     next: NextFunction
   ) {
-    const headers = req.headers;
+    const bearerToken = req.headers.authorization;
 
-    if (!headers.authorization) {
+    if (!bearerToken) {
       return res.status(401).json({
         ok: false,
         message: "Token é obrigatório",
       });
     }
 
-    const userFound = await prismaConnection.user.findFirst({
-      where: { authToken: headers.authorization, deleted: false },
-    });
+    // Authorization = "BEARER bdvjhsdfjsdfjs"
+    const jwtToken = bearerToken.replace(/Bearer/i, '').trim();
 
-    if (!userFound) {
+    const jwt = new JWT();
+    const userLogged = jwt.decodedToken(jwtToken);
+
+    if(!userLogged) {
       return res.status(401).json({
         ok: false,
-        message: "Usuário não autorizado",
+        message: "Token inválido",
       });
     }
 
-    req.body.user = userFound;
+    req.body.user = userLogged;
 
     return next();
   }
