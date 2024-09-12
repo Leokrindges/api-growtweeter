@@ -7,18 +7,6 @@ export class ShowFeedController {
   public static async showFeed(req: Request, res: Response) {
     try {
       const { user } = req.body;
-      const { limit, page } = req.query;
-
-      let limitDefault = 5;
-      let pageDefault = 1;
-
-      if (limit) {
-        limitDefault = Number(limit);
-      }
-
-      if (page) {
-        pageDefault = Number(page);
-      }
 
       const followersIds = await prismaConnection.follower.findMany({
         where: { userId: user.id },
@@ -29,29 +17,19 @@ export class ShowFeedController {
       userIds.push((user as User).id);
 
       const feed = await prismaConnection.tweet.findMany({
-        skip: limitDefault * (pageDefault - 1),
-        take: limitDefault,
         orderBy: { createdAt: "desc" },
         where: { userId: { in: userIds } },
         include: {
+          user:true,
           _count:true,          
         },
-      });
-
-      const count = await prismaConnection.tweet.count({
-        where: { userId: { in: userIds } },
       });
 
       return res.status(200).json({
         ok: true,
         message: "Listado Feed com sucesso",
         feed,
-        pagination: {
-          limit: limitDefault,
-          page: pageDefault,
-          count: count,
-          totalPages: Math.ceil(count / limitDefault),
-        },
+
       });
     } catch (err) {
       return res.status(500).json({

@@ -9,7 +9,6 @@ export class UsersControler {
       const emailAlreadyExists = await prismaConnection.user.findFirst({
         where: {
           email: email,
-          deleted: false,
         },
       });
 
