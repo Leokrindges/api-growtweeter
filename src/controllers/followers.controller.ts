@@ -1,50 +1,20 @@
 import { User } from "@prisma/client";
 import { Request, Response } from "express";
 import { prismaConnection } from "../database/prisma.connection";
+import { FollowService } from "../services/followers.service";
+import { onError } from "../utils/on-error.util";
 
 export class FollowersController {
   public static async follow(req: Request, res: Response) {
     try {
-      const userId  = req.params.id;
+      const userId = req.params.id;
       const { user } = req.body;
 
-      if (userId === (user as User).id) {
-        return res.status(400).json({
-          ok: false,
-          message: "Não é possivel seguir a si mesmo",
-        });
-      }
-
-      const userFound = await prismaConnection.user.findFirst({
-        where: { id: userId, deleted: false },
-      });
-
-      if (!userFound) {
-        return res.status(404).json({
-          ok: false,
-          message: "Usuário não encontrado",
-        });
-      }
-
-
-      const checkAlredyFollow = await prismaConnection.follower.findFirst({
-        where: { followerId: (user as User).id, userId: userId  },
-      });
-
-      if (checkAlredyFollow) {
-        return res.status(400).json({
-          ok: false,
-          message: `O usuário ${(user as User).name} já segue ${
-            userFound.name
-          }`,
-        });
-      }
-
-      const createFollower = await prismaConnection.follower.create({
-        data: {
-          userId: userId,
-          followerId: (user as User).id,
-        },
+      const service = new FollowService();
+      const createFollower = service.followService({
+        name: user.name,
+        userId,
+        userIdLogged: user.id,
       });
 
       return res.status(201).json({
@@ -53,12 +23,7 @@ export class FollowersController {
         createFollower,
       });
     } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
-      });
+      return onError(err, res);
     }
   }
 
@@ -67,41 +32,12 @@ export class FollowersController {
       const userId = req.params.id;
       const { user } = req.body;
 
-      if (userId === (user as User).id) {
-        return res.status(400).json({
-          ok: false,
-          message: "Não é possivel deixar seguir a si mesmo",
-        });
-      }
+      const service = new FollowService();
 
-      const userFound = await prismaConnection.user.findFirst({
-        where: { id: userId },
-      });
-
-      if (!userFound) {
-        return res.status(400).json({
-          ok: false,
-          message: "Usuário inválido",
-        });
-      }
-
-      const checkAlredyFollow = await prismaConnection.follower.findFirst({
-        where: { followerId: (user as User).id, userId: userFound.id },
-      });
-
-      if (!checkAlredyFollow) {
-        return res.status(400).json({
-          ok: false,
-          message: `O usuário ${(user as User).name} não segue ${
-            userFound.name
-          }`,
-        });
-      }
-
-      const unfollow = await prismaConnection.follower.delete({
-        where: {
-          id: checkAlredyFollow.id,
-        },
+      const unfollow = service.unfollowService({
+        name: user.name,
+        userId,
+        userIdLogged: user.id,
       });
 
       return res.status(201).json({
@@ -110,15 +46,10 @@ export class FollowersController {
         unfollow,
       });
     } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
-      });
+      return onError(err, res);
     }
   }
-  
+
   public static async showFollowers(req: Request, res: Response) {
     try {
       const { user } = req.body;
@@ -143,7 +74,7 @@ export class FollowersController {
           follower: {
             select: {
               name: true,
-              username: true
+              username: true,
             },
           },
         },
@@ -198,7 +129,7 @@ export class FollowersController {
           user: {
             select: {
               name: true,
-              username: true
+              username: true,
             },
           },
         },

@@ -2,6 +2,7 @@ import { User } from "@prisma/client";
 import { prismaConnection } from "../database/prisma.connection";
 import { Request, Response } from "express";
 import { ok } from "assert";
+import { onError } from "../utils/on-error.util";
 
 export class ShowFeedController {
   public static async showFeed(req: Request, res: Response) {
@@ -32,12 +33,8 @@ export class ShowFeedController {
 
       });
     } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
-      });
+      return onError(err, res);
+
     }
   }
 }
