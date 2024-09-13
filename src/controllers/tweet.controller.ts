@@ -1,33 +1,22 @@
-import { User } from "@prisma/client";
 import { Request, Response } from "express";
-import { prismaConnection } from "../database/prisma.connection";
+import { TweetService } from "../services/tweet.service";
+import { onError } from "../utils/on-error.util";
 
 export class TweetController {
   public static async create(req: Request, res: Response) {
     try {
       const { user, content } = req.body;
 
-      const data = await prismaConnection.tweet.create({
-        data: {
-          userId: (user as User).id,
-          content: content,
-        },
-      });
+      const service = new TweetService();
+      const data = service.createTweet({ content, userId: user.id });
 
       return res.status(201).json({
         ok: true,
-        message: `Tweet cadastrado com sucesso para o usuário ${
-          (user as User).name
-        }`,
+        message: `Tweet cadastrado com sucesso para o usuário`,
         data,
       });
     } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
-      });
+      return onError(err, res);
     }
   }
 
@@ -36,57 +25,22 @@ export class TweetController {
       let { limit, page } = req.query;
       const { user } = req.body;
 
-      let limitDefault = 10;
-      let pageDefault = 1;
-
-      if (limit) {
-        limitDefault = Number(limit);
-      }
-
-      if (page) {
-        pageDefault = Number(page);
-      }
-
-      const tweets = await prismaConnection.tweet.findMany({
-        skip: limitDefault * (pageDefault - 1),
-        take: limitDefault,
-        orderBy: { createdAt: "desc" },
-        where: {
-          userId: user.id,
-        },
-        include: {
-          _count:{select:{like:true, reply: true}},
-        },
+      const service = new TweetService();
+      const listTweets = await service.listTweets({
+        limit: Number(limit),
+        page: Number(page),
+        userId: user.id,
       });
 
-      const tweetsLiked = await prismaConnection.like.findMany({
-        where: { tweet: { id: user.id } },
-      });
-
-      const count = await prismaConnection.tweet.count({
-        where: {
-          userId: user.id,
-        },
-      });
       return res.status(200).json({
         ok: true,
         message: "Tweets listados com sucesso",
         user: user,
-        tweets: tweets,
-        pagination: {
-          limit: limitDefault,
-          page: pageDefault,
-          count: count,
-          totalPages: Math.ceil(count / limitDefault),
-        },
+        tweets: listTweets.tweet,
+        pagination: listTweets.pagination,
       });
     } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
-      });
+      return onError(err, res);
     }
   }
 
@@ -95,26 +49,9 @@ export class TweetController {
       const tweetId = req.params.id;
       const { content, user } = req.body;
 
-      const tweetBelongsUser = await prismaConnection.tweet.findFirst({
-        where: {
-          id: tweetId,
-          userId: user.id,
-        },
-      });
+      const service = new TweetService();
 
-      if (!tweetBelongsUser) {
-        return res.status(404).json({
-          ok: false,
-          message: "Tweet não encontrado",
-        });
-      }
-
-      const data = await prismaConnection.tweet.update({
-        where: { id: tweetId },
-        data: {
-          content: content,
-        },
-      });
+      const data = service.updateTweets({ tweetId, content, userId: user.id });
 
       return res.status(200).json({
         ok: true,
@@ -122,12 +59,7 @@ export class TweetController {
         data,
       });
     } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
-      });
+      return onError(err, res);
     }
   }
 
@@ -136,25 +68,8 @@ export class TweetController {
       const tweetId = req.params.id;
       const { user } = req.body;
 
-      const tweetBelongsUser = await prismaConnection.tweet.findFirst({
-        where: {
-          id: tweetId,
-          userId: user.id,
-        },
-      });
-
-      if (!tweetBelongsUser) {
-        return res.status(404).json({
-          ok: false,
-          message: "Tweet não encontrado",
-        });
-      }
-
-      const data = await prismaConnection.tweet.delete({
-        where: {
-          id: tweetId,
-        },
-      });
+      const service = new TweetService();
+      const data = service.deleteTweets({ tweetId, userId: user.id });
 
       return res.status(200).json({
         ok: true,
@@ -162,12 +77,7 @@ export class TweetController {
         data,
       });
     } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
-      });
+      return onError(err, res);
     }
   }
 }
