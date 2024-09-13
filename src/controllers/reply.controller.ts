@@ -1,6 +1,8 @@
 import { User } from "@prisma/client";
 import { Request, Response } from "express";
 import { prismaConnection } from "../database/prisma.connection";
+import { ReplyService } from "../services/reply.service";
+import { onError } from "../utils/on-error.util";
 
 export class ReplyController {
   public static async create(req: Request, res: Response) {
@@ -8,49 +10,21 @@ export class ReplyController {
       const tweetId = req.params.id;
       const { user, content } = req.body;
 
-      const tweetFound = await prismaConnection.tweet.findFirst({
-        where: { id: tweetId },
+      const service = new ReplyService();
+
+      const createTweetReply = service.createReply({
+        content,
+        tweetId,
+        userId: user.id,
       });
-
-      if (!tweetFound) {
-        return res.status(404).json({
-          ok: false,
-          message: "Tweet não encontrado",
-        });
-      }
-
-      const createTweetReply = await prismaConnection.tweet.create({
-        data: {
-          userId: (user as User).id,
-          content: content,
-          type: "R",
-        },
-      });
-
-      await prismaConnection.reply.create({
-        data: {
-          tweetOriginalId: tweetId,
-          tweetReplyId: createTweetReply.id,
-        },
-      });
-
-      // tweet original - 0..N - reply
-      // tweet reply - 1..1  - reply
 
       return res.status(201).json({
         ok: true,
-        message: `Reply cadastrado com sucesso para o usuário ${
-          (user as User).name
-        }`,
+        message: `Reply cadastrado com sucesso!`,
         replyTweet: createTweetReply,
       });
     } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
-      });
+      return onError(err, res);
     }
   }
 
@@ -59,16 +33,11 @@ export class ReplyController {
       const tweetId = req.params.id;
       const { user } = req.body;
 
-      const replyFound = await prismaConnection.tweet.findFirst({
-        where: { userId: user.id, id: tweetId, type: "R" },
+      const service = new ReplyService();
+      const replyFound = service.getReplyById({
+        tweetId,
+        userId: user.id,
       });
-
-      if (!replyFound) {
-        return res.status(400).json({
-          ok: false,
-          message: "Reply não encontrado",
-        });
-      }
 
       return res.status(200).json({
         ok: true,
@@ -76,43 +45,17 @@ export class ReplyController {
         reply: replyFound,
       });
     } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
-      });
+      return onError(err, res);
     }
   }
 
   public static async delete(req: Request, res: Response) {
     try {
-      const  tweetId  = req.params.id;
+      const tweetId = req.params.id;
       const { user } = req.body;
 
-      const replyFound = await prismaConnection.reply.findFirst({
-        where: { tweetReplyId: tweetId },
-      });
-
-      if (!replyFound) {
-        return res.status(400).json({
-          ok: false,
-          message: "Reply não encontrado",
-        });
-      }
-
-      await prismaConnection.reply.delete({
-        where: {
-          id: replyFound.id,
-        },
-      });
-
-      const replyDeleted = await prismaConnection.tweet.delete({
-        where: {
-          id: tweetId,
-          AND: { type: "R", userId: (user as User).id },
-        },
-      });
+      const service = new ReplyService();
+      const replyDeleted = service.deleteReply({ tweetId, userId: user.id });
 
       return res.status(200).json({
         ok: true,
@@ -120,12 +63,7 @@ export class ReplyController {
         replyDeleted,
       });
     } catch (err) {
-      return res.status(500).json({
-        ok: false,
-        message: `Ocorreu um erro inesperado. Erro: ${(err as Error).name} - ${
-          (err as Error).message
-        }`,
-      });
+      return onError(err, res);
     }
   }
 }
