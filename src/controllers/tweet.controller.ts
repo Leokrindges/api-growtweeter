@@ -12,7 +12,7 @@ export class TweetController {
 
       return res.status(201).json({
         ok: true,
-        message: `Tweet cadastrado com sucesso para o usuário`,
+        message: `Tweet cadastrado com sucesso`,
         data,
       });
     } catch (err) {

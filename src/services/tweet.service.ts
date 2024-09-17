@@ -3,7 +3,7 @@ import { prismaConnection } from "../database/prisma.connection";
 import { ListTweetDTO } from "../dtos/list-tweet.dto";
 import { updateTweetDTO } from "../dtos/update-tweet.dto";
 import { HttpError } from "../errors/http.error";
-import { DeleteTweet } from "../dtos/delete-tweet.dto";
+import { TweetUser } from "../dtos/tweetUser.dto";
 import { CreateTweet } from "../dtos/create-tweet.dto";
 
 export class TweetService {
@@ -82,7 +82,7 @@ export class TweetService {
     return data;
   }
 
-  public async deleteTweets(input: DeleteTweet): Promise<Tweet> {
+  public async deleteTweets(input: TweetUser): Promise<Tweet> {
     const tweetBelongsUser = await prismaConnection.tweet.findFirst({
       where: {
         id: input.tweetId,

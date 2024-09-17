@@ -8,10 +8,22 @@ import { LikeRoutes } from "./routes/like.routes";
 import { ReplyRoutes } from "./routes/reply.routes";
 import { TweetRoutes } from "./routes/tweet.routes";
 import { UserRoutes } from "./routes/users.routes";
+import swaggerUI from 'swagger-ui-express';
+import swaggerDoc from './docs/swagger.json';
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+app.get('/', (_, res) => {
+  res.status(200).json({
+    message: 'Hello Growdever!',
+    ok: true,
+  });
+});
+
+app.use('/docs', swaggerUI.serve);
+app.get('/docs', swaggerUI.setup(swaggerDoc));
 
 app.use("/user", UserRoutes.execute());
 app.use("/auth", AuthRoutes.execute());
