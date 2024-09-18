@@ -1,8 +1,8 @@
 import { User } from "@prisma/client";
-import { prismaConnection } from "../database/prisma.connection";
 import { Request, Response } from "express";
 import { ok } from "assert";
 import { onError } from "../utils/on-error.util";
+import prismaConnection from "../database/prisma.connection";
 
 export class ShowFeedController {
   public static async showFeed(req: Request, res: Response) {

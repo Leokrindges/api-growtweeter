@@ -1,10 +1,10 @@
 import { Tweet } from "@prisma/client";
-import { prismaConnection } from "../database/prisma.connection";
 import { ListTweetDTO } from "../dtos/list-tweet.dto";
 import { updateTweetDTO } from "../dtos/update-tweet.dto";
 import { HttpError } from "../errors/http.error";
 import { TweetUser } from "../dtos/tweetUser.dto";
 import { CreateTweet } from "../dtos/create-tweet.dto";
+import prismaConnection from "../database/prisma.connection";
 
 export class TweetService {
   public async createTweet(input: CreateTweet): Promise<Tweet> {

@@ -1,15 +1,11 @@
 import { User } from '@prisma/client';
-import { prismaConnection } from '../database/prisma.connection';
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { HttpError } from '../errors/http.error';
 import { Bcryt } from '../libs/bcrypt.lib';
+import prismaConnection from '../database/prisma.connection';
+import { UpdateUserDTO } from '../dtos/update-user.dto';
 
-interface UpdateUserDTO {
-    userId: string;
-    name?: string;
-    username?: string;
-    password?: string;
-}
+
 
 export class UserService {
     public async createUser(input: CreateUserDTO): Promise<User> {

@@ -1,4 +1,4 @@
-import { prismaConnection } from "../database/prisma.connection";
+import prismaConnection from "../database/prisma.connection";
 import { TweetUser } from "../dtos/tweetUser.dto";
 import { HttpError } from "../errors/http.error";
 

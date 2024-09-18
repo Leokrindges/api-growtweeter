@@ -1,4 +1,4 @@
-import { prismaConnection } from '../database/prisma.connection';
+import prismaConnection from '../database/prisma.connection';
 import { LoginUserInputDTO, LoginUserOutputDTO } from '../dtos/login-user.dto';
 import { HttpError } from '../errors/http.error';
 import { Bcryt } from '../libs/bcrypt.lib';

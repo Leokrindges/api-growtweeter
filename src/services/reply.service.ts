@@ -1,8 +1,8 @@
 import { Tweet } from "@prisma/client";
-import { prismaConnection } from "../database/prisma.connection";
 import { HttpError } from "../errors/http.error";
 import { CreateReply } from "../dtos/create-reply.dto";
 import { TweetUser } from "../dtos/tweetUser.dto";
+import prismaConnection from "../database/prisma.connection";
 
 export class ReplyService {
   public async createReply(input: CreateReply): Promise<Tweet> {

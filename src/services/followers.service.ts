@@ -1,7 +1,7 @@
 import { Follower } from "@prisma/client";
-import { prismaConnection } from "../database/prisma.connection";
 import { Follow } from "../dtos/follow.dto";
 import { HttpError } from "../errors/http.error";
+import prismaConnection from "../database/prisma.connection";
 
 export class FollowService {
   public async followService(input: Follow): Promise<Follower> {

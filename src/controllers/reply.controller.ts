@@ -1,6 +1,5 @@
 import { User } from "@prisma/client";
 import { Request, Response } from "express";
-import { prismaConnection } from "../database/prisma.connection";
 import { ReplyService } from "../services/reply.service";
 import { onError } from "../utils/on-error.util";
 

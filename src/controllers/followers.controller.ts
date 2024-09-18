@@ -1,8 +1,8 @@
 import { User } from "@prisma/client";
 import { Request, Response } from "express";
-import { prismaConnection } from "../database/prisma.connection";
 import { FollowService } from "../services/followers.service";
 import { onError } from "../utils/on-error.util";
+import prismaConnection from "../database/prisma.connection";
 
 export class FollowersController {
   public static async follow(req: Request, res: Response) {

@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { prismaConnection } from "../database/prisma.connection";
 import { User } from "@prisma/client";
 import { LikeService } from "../services/like.service";
 
