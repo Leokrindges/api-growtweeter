@@ -8,7 +8,7 @@ export class TweetController {
       const { user, content } = req.body;
 
       const service = new TweetService();
-      const data = service.createTweet({ content, userId: user.id });
+      const data = await service.createTweet({ content, userId: user.id });
 
       return res.status(201).json({
         ok: true,
@@ -51,7 +51,7 @@ export class TweetController {
 
       const service = new TweetService();
 
-      const data = service.updateTweets({ tweetId, content, userId: user.id });
+      const data = await service.updateTweets({ tweetId, content, userId: user.id });
 
       return res.status(200).json({
         ok: true,
